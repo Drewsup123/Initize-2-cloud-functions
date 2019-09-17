@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+// const mailgun = require('mailgun-js')({apiKey, domain}) This will be used later
 admin.initializeApp();
 
 exports.deleteExpiredInvites = functions.database.ref('/invites')
@@ -35,3 +36,24 @@ exports.updateChangeLog = functions.database.ref('/boardData/{pushId}/{subBoardI
             message : `${uid} changed task with tile ${changeAfter.title} in ${subBoardId} at {time goes here}`
         })
     })
+
+    // exports.sendWelcomeEmail = functions.database.ref('users/{uid}').onWrite(event => {
+    //     // only trigger for new users [event.data.previous.exists()]
+    //     // do not trigger on delete [!event.data.exists()]
+    //     if (!event.data.exists() || event.data.previous.exists()) {
+    //         return
+    //     }
+    //     const user = event.data.val()
+    //     const { email, username } = user
+    //     const data = {
+    //         from: 'initize.com',
+    //         subject: 'Welcome To Initize!',
+    //         html: `<p>Welcome! ${username}</p>`,
+    //         'h:Reply-To': 'drew@initize.com',
+    //         to: email
+    //     }
+    //     mailgun.messages().send(data, function (error, body) {
+    //         console.log(body)
+    //     })
+    // })
+    //This function will be used later probably won't use mailgun
