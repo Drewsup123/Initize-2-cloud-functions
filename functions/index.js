@@ -18,3 +18,11 @@ exports.deleteExpiredInvites = functions.database.ref('/invites')
             return ref.update(updates);
         })
     })
+
+exports.updateChangeLog = functions.database.ref('/boardData')
+    .onWrite((change, context) => {
+        const changeBefore = change.before.val();
+        const changeAfter = change.after.val();
+        console.log("before", changeBefore, "after", changeAfter);
+        console.log("context", context)
+    })
