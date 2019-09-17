@@ -1,6 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-// const mailgun = require('mailgun-js')({apiKey, domain}) This will be used later
+const mailgun = require('mailgun-js') //This will be used later
+const mg = mailgun({apiKey : "fake key", domain : "www.initize.com"});
+const WelcomeEmail = require('./WelcomeEmail');
 admin.initializeApp();
 
 exports.deleteExpiredInvites = functions.database.ref('/invites')
@@ -37,23 +39,29 @@ exports.updateChangeLog = functions.database.ref('/boardData/{pushId}/{subBoardI
         })
     })
 
-    // exports.sendWelcomeEmail = functions.database.ref('users/{uid}').onWrite(event => {
-    //     // only trigger for new users [event.data.previous.exists()]
-    //     // do not trigger on delete [!event.data.exists()]
-    //     if (!event.data.exists() || event.data.previous.exists()) {
-    //         return
-    //     }
-    //     const user = event.data.val()
-    //     const { email, username } = user
-    //     const data = {
-    //         from: 'initize.com',
-    //         subject: 'Welcome To Initize!',
-    //         html: `<p>Welcome! ${username}</p>`,
-    //         'h:Reply-To': 'drew@initize.com',
-    //         to: email
-    //     }
-    //     mailgun.messages().send(data, function (error, body) {
-    //         console.log(body)
-    //     })
-    // })
+    exports.sendWelcomeEmail = functions.database.ref('users/{uid}').onWrite(event => {
+        // only trigger for new users [event.data.previous.exists()]
+        // do not trigger on delete [!event.data.exists()]
+        console.log(event)
+        if (!(event.before.val() === null)) {
+            console.log("email not sent")
+            return("email not sent");
+        }
+        const user = event.after.val();
+        const { email, username } = user
+        const data = {
+            from: 'Drew <drew@initize.com>',
+            subject: `Welcome To Initize ${username}!`,
+            text: "Remember this application is still in development so please keep that in mind if you run across any bugs or inconveniences. Please don't respond to this email yet as I don't have email routing set up so I won't get it.",
+            to: `${email}, drewsup123c@gmail.com`
+        }
+        mg.messages().send(data, function (error, body) {
+            console.log("email body", body)
+            if(error){
+                console.log("Error from MG", error);
+            }
+        })
+        console.log("email should have been sent")
+        return("Email Sent")
+    })
     //This function will be used later probably won't use mailgun
