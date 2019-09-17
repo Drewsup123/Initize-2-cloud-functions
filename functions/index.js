@@ -19,10 +19,19 @@ exports.deleteExpiredInvites = functions.database.ref('/invites')
         })
     })
 
-exports.updateChangeLog = functions.database.ref('/boardData')
+exports.updateChangeLog = functions.database.ref('/boardData/{pushId}/{subBoardId}/tasks/{taskId}')
     .onWrite((change, context) => {
+        // context.params.[anything in {} up above]
+        const { pushId, subBoardId, taskId } = context.params;
+        const { uid } = context.auth;
         const changeBefore = change.before.val();
         const changeAfter = change.after.val();
         console.log("before", changeBefore, "after", changeAfter);
         console.log("context", context)
+        return admin.database().ref(`/changelog/${pushId}`).push().set({
+            subBoardId : subBoardId,
+            taskId : taskId,
+            user : uid,
+            message : `${uid} changed task with tile ${changeAfter.title} in ${subBoardId} at {time goes here}`
+        })
     })
